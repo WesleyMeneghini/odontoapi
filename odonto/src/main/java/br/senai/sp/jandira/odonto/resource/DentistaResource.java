@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.senai.sp.jandira.odonto.model.Dentista;
 import br.senai.sp.jandira.odonto.repository.DentistaRepository;
+import br.senai.sp.jandira.odonto.upload.FileBaseStorageService;
+import br.senai.sp.jandira.odonto.upload.FileUpload;
+import br.senai.sp.jandira.odonto.upload.FileUploadUrl;
 
 @RestController
 @RequestMapping("/odonto")
@@ -27,6 +30,9 @@ public class DentistaResource {
 	
 	@Autowired
 	private DentistaRepository dentistaRepository;
+	
+	@Autowired
+	private FileBaseStorageService firebase;
 	
 	@GetMapping("/dentistas")
 	public List<Dentista> getDentistas(){
@@ -46,7 +52,16 @@ public class DentistaResource {
 	@PostMapping("/dentistas")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Dentista gravar(@Valid @RequestBody Dentista dentista) {
+		System.out.println("************** " + dentista);
 		return dentistaRepository.save(dentista);
+	}
+	
+	@PostMapping("/upload")
+	public ResponseEntity<FileUploadUrl> gravarFoto(@RequestBody FileUpload file) {
+		
+		FileUploadUrl url = new FileUploadUrl(firebase.upload(file));
+		
+		return ResponseEntity.ok(url);
 	}
 	
 	@DeleteMapping("/dentistas/{codigo}")
