@@ -1,7 +1,10 @@
 package br.senai.sp.jandira.odonto.resource;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import javax.validation.Valid;
 
@@ -56,10 +59,15 @@ public class DentistaResource {
 		return dentistaRepository.save(dentista);
 	}
 	
-	@PostMapping("/upload")
-	public ResponseEntity<FileUploadUrl> gravarFoto(@RequestBody FileUpload file) {
-		
+	@PostMapping("/dentistas/{dentistaId}/upload")
+	public ResponseEntity<FileUploadUrl> gravarFoto(@PathVariable Long dentistaId, @RequestBody FileUpload file) {
+		Random random = new Random();
+		file.setFileName(file.getFileName() + random.nextInt());
 		FileUploadUrl url = new FileUploadUrl(firebase.upload(file));
+		
+		Dentista dentista = dentistaRepository.findById(dentistaId).orElse(null);
+		dentista.setFotoUrl(url.getUrl());
+		dentistaRepository.save(dentista);
 		
 		return ResponseEntity.ok(url);
 	}
